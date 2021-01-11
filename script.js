@@ -1,5 +1,3 @@
-// MASSIVE TODO: IMPLEMENT SMOETHING DECENT WHICH OFFSETS THE ORIGIN TO THE CENTER OF THE GRID. THE CURRENT SHIT IS RUBBISH.
-
 // Element references
 // Inputs
 const x1_input = document.getElementById("x1");
@@ -11,19 +9,26 @@ const y2_input = document.getElementById("y2");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-// Result
+// Results
 const lineLength = document.getElementById("line-length");
+const slope = document.getElementById("slope");
 
 // Variables
 let lineCount = 31;
 let gridSpacing = 20;
 let pointRadius = 5;
-let gridPadding = 40;
+let gridOffsetFromEdge = 40;
 
-let x1 = 3;
-let y1 = 3;
-let x2 = 0;
-let y2 = 0;
+const CANVAS_SIZE = 680;
+canvas.width = CANVAS_SIZE;
+canvas.height = CANVAS_SIZE;
+canvas.style.width = CANVAS_SIZE + "px";
+canvas.style.height = CANVAS_SIZE + "px";
+
+let x1 = 0;
+let y1 = 0;
+let x2 = 3;
+let y2 = 3;
 
 // Init input values
 x1_input.value = x1;
@@ -52,50 +57,57 @@ y2_input.addEventListener("input", (e) => {
     draw();
 });
 
-function draw() {
-    drawBackground();
-    drawGrid();
-    drawPoints();
-    drawLine();
+function drawBackground() {
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 }
 
-canvas.width = canvas.offsetWidth + gridPadding * 2;
-canvas.height = canvas.offsetHeight + gridPadding * 2;
-
-draw();
-
 function drawGrid() {
+    const lineLength = CANVAS_SIZE - gridOffsetFromEdge;
+    ctx.strokeStyle = "#ddd";
 
-    for (let i = 1; i <= lineCount - 1; i++) {
-        let start = i * gridSpacing + gridPadding;
+    for (let i = 1; i < lineCount - 1; i++) {
+        let start = i * gridSpacing + gridOffsetFromEdge;
 
-        if (i === (lineCount - 1) / 2 + 1) {
-            ctx.strokeStyle = "black";
-        } else {
-            ctx.strokeStyle = "#ddd";
+        /**
+         * Skip middle lines and draw them black at the end,
+         * so that they're on top of the grey ones
+         */
+        if (i === (lineCount - 1) / 2) {
+            continue;
         }
-
-        const lineLength = canvas.width - gridPadding;
 
         // Horizontal lines
         ctx.beginPath();
-        ctx.moveTo(gridPadding, start);
+        ctx.moveTo(gridOffsetFromEdge, start);
         ctx.lineTo(lineLength, start);
         ctx.closePath();
         ctx.stroke();
 
         // Vertical lines
         ctx.beginPath();
-        ctx.moveTo(start, gridPadding);
+        ctx.moveTo(start, gridOffsetFromEdge);
         ctx.lineTo(start, lineLength);
         ctx.closePath();
         ctx.stroke();
     }
-}
 
-function drawBackground() {
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = "#777";
+    let start = ((lineCount - 1) / 2) * gridSpacing + gridOffsetFromEdge;
+
+    // Horizontal center line
+    ctx.beginPath();
+    ctx.moveTo(gridOffsetFromEdge, start);
+    ctx.lineTo(lineLength, start);
+    ctx.closePath();
+    ctx.stroke();
+
+    // Vertical center line
+    ctx.beginPath();
+    ctx.moveTo(start, gridOffsetFromEdge);
+    ctx.lineTo(start, lineLength);
+    ctx.closePath();
+    ctx.stroke();
 }
 
 function drawPoints() {
@@ -103,33 +115,55 @@ function drawPoints() {
 
     // Draw point 1
     ctx.beginPath();
-    ctx.arc(gridSpacing * x1 + canvas.width / 2, gridSpacing * y1 + canvas.width / 2, pointRadius, 0, 360);
+    ctx.arc(gridSpacing * x1 + canvas.width / 2, gridSpacing * y1 * -1 + canvas.width / 2, pointRadius, 0, 360);
     ctx.closePath();
     ctx.fill();
 
     // Draw point 2
     ctx.beginPath();
-    ctx.arc(gridSpacing * x2 + canvas.width / 2, gridSpacing * y2 + canvas.width / 2, pointRadius, 0, 360);
+    ctx.arc(gridSpacing * x2 + canvas.width / 2, gridSpacing * y2 * -1 + canvas.width / 2, pointRadius, 0, 360);
     ctx.closePath();
     ctx.fill();
 }
 
-function drawLine() {
+function drawConnectingLine() {
     const x_1 = x1 * gridSpacing;
     const y_1 = y1 * gridSpacing;
     const x_2 = x2 * gridSpacing;
     const y_2 = y2 * gridSpacing;
 
     ctx.strokeStyle = "red";
+
+    const centerLocation = CANVAS_SIZE / 2;
+
+    ctx.save();
+    ctx.translate(centerLocation, centerLocation);
     ctx.beginPath();
-    ctx.moveTo(x_1, y_1);
-    ctx.lineTo(x_2, y_2);
+    ctx.moveTo(x_1, y_1 * -1);
+    ctx.lineTo(x_2, y_2 * -1);
     ctx.closePath();
     ctx.stroke();
+    ctx.restore();
 
+    drawResults(x_1, y_1, x_2, y_2);
+}
+
+function drawResults(x_1, y_1, x_2, y_2) {
     // Calc the resulting line length
-    const delta_x = Math.abs(x_1 - x_2);
-    const delta_y = Math.abs(y_1 - y_2);
+    const delta_x = x_2 - x_1;
+    const delta_y = y_2 - y_1;
     const diagonal = Math.sqrt(delta_x ** 2 + delta_y ** 2)
     lineLength.innerHTML = diagonal / gridSpacing;
+
+    // Calc the slope
+    slope.innerHTML = delta_y / delta_x;
 }
+
+function draw() {
+    drawBackground();
+    drawGrid();
+    drawConnectingLine();
+    drawPoints();
+}
+
+draw();
