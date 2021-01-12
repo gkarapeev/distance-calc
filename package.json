@@ -1,0 +1,19 @@
+{
+  "name": "distance-calc",
+  "version": "1.0.0",
+  "description": "Calculator of slope & distance between 2 points in a coordinate system",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "log": "heroku logs -t"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gkarapeev/distance-calc.git"
+  },
+  "author": "Asi & Gesh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gkarapeev/distance-calc/issues"
+  }
+}
