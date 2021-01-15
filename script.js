@@ -68,6 +68,8 @@ const toScreen = value => value * gridSpacing;
 function drawBackground() {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvasSize, canvasSize);
+    
+    drawGrid();
 }
 
 function drawGrid() {
@@ -190,13 +192,14 @@ function drawResults(x_1, y_1, x_2, y_2) {
 
 function draw() {
     drawBackground();
-    drawGrid();
 
     ctx.save();
     ctx.translate(halfCanvasSize, halfCanvasSize);
+
     drawConnectingLine();
     drawPoints();
     // drawPerpendicularBisector();
+
     ctx.restore();
 }
 
