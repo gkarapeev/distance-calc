@@ -61,6 +61,10 @@ y2_input.addEventListener("input", (e) => {
     draw();
 });
 
+// Utils
+const toScreen = value => value * gridSpacing;
+
+// The real deal
 function drawBackground() {
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvasSize, canvasSize);
@@ -71,7 +75,7 @@ function drawGrid() {
     ctx.strokeStyle = "#ddd";
 
     for (let i = 1; i < lineCount - 1; i++) {
-        let start = i * gridSpacing + gridOffsetFromEdge;
+        let start = toScreen(i) + gridOffsetFromEdge;
 
         /**
          * Skip middle lines and draw them black at the end,
@@ -119,23 +123,20 @@ function drawPoints() {
 
     // Draw point 1
     ctx.beginPath();
-    ctx.arc(gridSpacing * x1 + halfCanvasSize, gridSpacing * y1 * -1 + halfCanvasSize, pointRadius, 0, 360);
+    ctx.arc(toScreen(x1), toScreen(y1) * -1, pointRadius, 0, 360);
     ctx.closePath();
     ctx.fill();
 
     // Draw point 2
     ctx.beginPath();
-    ctx.arc(gridSpacing * x2 + halfCanvasSize, gridSpacing * y2 * -1 + halfCanvasSize, pointRadius, 0, 360);
+    ctx.arc(toScreen(x2), toScreen(y2) * -1, pointRadius, 0, 360);
     ctx.closePath();
     ctx.fill();
 
     // Draw the midpoint
     const [ midPointX, midPointY ] = midPoint(x1, y1, x2, y2);
-    const screenMidPointX = gridSpacing * midPointX + halfCanvasSize;
-    const screenMidPointY = gridSpacing * midPointY * -1 + halfCanvasSize;
-
     ctx.beginPath();
-    ctx.arc(screenMidPointX, screenMidPointY, pointRadius - 0.5, 0, 360);
+    ctx.arc(toScreen(midPointX), toScreen(midPointY) * -1, pointRadius - 0.5, 0, 360);
     ctx.closePath();
     ctx.fillStyle = midPointColor;
     ctx.fill();
@@ -146,38 +147,35 @@ function midPoint(x1, y1, x2, y2) {
 }
 
 function drawConnectingLine() {
-    const x_1 = x1 * gridSpacing;
-    const y_1 = y1 * gridSpacing;
-    const x_2 = x2 * gridSpacing;
-    const y_2 = y2 * gridSpacing;
+    const x_1 = toScreen(x1);
+    const y_1 = toScreen(y1);
+    const x_2 = toScreen(x2);
+    const y_2 = toScreen(y2);
 
     ctx.strokeStyle = "red";
 
-    ctx.save();
-    ctx.translate(halfCanvasSize, halfCanvasSize);
     ctx.beginPath();
     ctx.moveTo(x_1, y_1 * -1);
     ctx.lineTo(x_2, y_2 * -1);
     ctx.closePath();
     ctx.stroke();
-    ctx.restore();
 
     drawResults(x_1, y_1, x_2, y_2);
 }
 
-function drawPerpendicularBisector(x = 1.5, y = 1.5, length = 4, slope = -1) {
-    // Find where the point would be on this slope if X was 1 unit more
-    const slopeOppositeReciprocal = -1 * (1 / slope);
-    const xPlusOneY = x * slopeOppositeReciprocal;
-    const nextPointScreenY = xPlusOneY * gridSpacing * -1 + halfCanvasSize;
-    const nextPointScreenX = (x + 1) * gridSpacing + halfCanvasSize;
+// function drawPerpendicularBisector(x = 1.5, y = 1.5, length = 4, slope = -1) {
+//     // Find where the point would be on this slope if X was 1 unit more
+//     const slopeOppositeReciprocal = -1 * (1 / slope);
+//     const xPlusOneY = x * slopeOppositeReciprocal;
+//     const nextPointScreenY = xPlusOneY * gridSpacing * -1 + halfCanvasSize;
+//     const nextPointScreenX = (x + 1) * gridSpacing + halfCanvasSize;
 
-    ctx.beginPath();
-    ctx.moveTo(nextPointScreenX, nextPointScreenY);
-    ctx.lineTo(-1 * nextPointScreenX, -1 * nextPointScreenY);
-    ctx.closePath();
-    ctx.stroke();
-}
+//     ctx.beginPath();
+//     ctx.moveTo(nextPointScreenX, nextPointScreenY);
+//     ctx.lineTo(-1 * nextPointScreenX, -1 * nextPointScreenY);
+//     ctx.closePath();
+//     ctx.stroke();
+// }
 
 function drawResults(x_1, y_1, x_2, y_2) {
     // Calc the resulting line length
@@ -193,10 +191,13 @@ function drawResults(x_1, y_1, x_2, y_2) {
 function draw() {
     drawBackground();
     drawGrid();
+
+    ctx.save();
+    ctx.translate(halfCanvasSize, halfCanvasSize);
     drawConnectingLine();
     drawPoints();
+    // drawPerpendicularBisector();
+    ctx.restore();
 }
 
 draw();
- 
-drawPerpendicularBisector();
