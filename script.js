@@ -11,7 +11,7 @@ const ctx = canvas.getContext("2d");
 
 // Results
 const lineLength = document.getElementById("line-length");
-const slope = document.getElementById("slope");
+const slope_el = document.getElementById("slope");
 
 // Variables
 let lineCount = 31;
@@ -29,10 +29,10 @@ canvas.height = canvasSize;
 canvas.style.width = canvasSize + "px";
 canvas.style.height = canvasSize + "px";
  
-let x1 = 0;
+let x1 = -3;
 let y1 = 0;
-let x2 = 3;
-let y2 = 3;
+let x2 = 9;
+let y2 = 6;
 
 // Init input values
 x1_input.value = x1;
@@ -63,6 +63,7 @@ y2_input.addEventListener("input", (e) => {
 
 // Utils
 const toScreen = value => value * gridSpacing;
+const toWorld = value => value / gridSpacing;
 
 // The real deal
 function drawBackground() {
@@ -149,45 +150,40 @@ function midPoint(x1, y1, x2, y2) {
 }
 
 function drawConnectingLine() {
-    const x_1 = toScreen(x1);
-    const y_1 = toScreen(y1);
-    const x_2 = toScreen(x2);
-    const y_2 = toScreen(y2);
-
     ctx.strokeStyle = "red";
 
     ctx.beginPath();
-    ctx.moveTo(x_1, y_1 * -1);
-    ctx.lineTo(x_2, y_2 * -1);
+    ctx.moveTo(toScreen(x1), toScreen(y1) * -1);
+    ctx.lineTo(toScreen(x2), toScreen(y2) * -1);
     ctx.closePath();
     ctx.stroke();
 
-    drawResults(x_1, y_1, x_2, y_2);
+    const delta_x = x2 - x1;
+    const delta_y = y2 - y1;
+    const slope = delta_y / delta_x;
+    const diagonal = Math.sqrt(delta_x ** 2 + delta_y ** 2);
+
+    drawPerpendicularBisector(...midPoint(x1, y1, x2, y2), slope);
+    drawResults(slope, diagonal);
 }
 
-// function drawPerpendicularBisector(x = 1.5, y = 1.5, length = 4, slope = -1) {
-//     // Find where the point would be on this slope if X was 1 unit more
-//     const slopeOppositeReciprocal = -1 * (1 / slope);
-//     const xPlusOneY = x * slopeOppositeReciprocal;
-//     const nextPointScreenY = xPlusOneY * gridSpacing * -1 + halfCanvasSize;
-//     const nextPointScreenX = (x + 1) * gridSpacing + halfCanvasSize;
+function drawPerpendicularBisector(x, y, sl) {
+    // y = mx + b
+    // b = y - m * x
+    const slope = -1 * (1 / sl);
+    const b = y - slope * x;
 
-//     ctx.beginPath();
-//     ctx.moveTo(nextPointScreenX, nextPointScreenY);
-//     ctx.lineTo(-1 * nextPointScreenX, -1 * nextPointScreenY);
-//     ctx.closePath();
-//     ctx.stroke();
-// }
+    ctx.beginPath();
+    ctx.arc(toScreen(0), toScreen(b) * -1, 8, 0, 360);
+    // ctx.lineTo(toScreen(3), toScreen(0));
+    ctx.closePath();
+    ctx.fillStyle = "pink";
+    ctx.fill();
+}
 
-function drawResults(x_1, y_1, x_2, y_2) {
-    // Calc the resulting line length
-    const delta_x = x_2 - x_1;
-    const delta_y = y_2 - y_1;
-    const diagonal = Math.sqrt(delta_x ** 2 + delta_y ** 2)
-    lineLength.innerHTML = diagonal / gridSpacing;
-
-    // Calc the slope
-    slope.innerHTML = delta_y / delta_x;
+function drawResults(slope, diagonal) {
+    lineLength.innerHTML = diagonal.toFixed(3);
+    slope_el.innerHTML = slope.toFixed(3);
 }
 
 function draw() {
@@ -198,7 +194,6 @@ function draw() {
 
     drawConnectingLine();
     drawPoints();
-    // drawPerpendicularBisector();
 
     ctx.restore();
 }
