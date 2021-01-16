@@ -21,6 +21,7 @@ let gridOffsetFromEdge = 40;
 
 const pointColor = "#a54d00";
 const midPointColor = "blue";
+const yInterceptColor = "orange";   
 
 const canvasSize = 680;
 const halfCanvasSize = canvasSize / 2;
@@ -92,15 +93,15 @@ function drawGrid() {
         ctx.beginPath();
         ctx.moveTo(gridOffsetFromEdge, start);
         ctx.lineTo(lineLength, start);
-        ctx.closePath();
         ctx.stroke();
+        ctx.closePath();
 
         // Vertical lines
         ctx.beginPath();
         ctx.moveTo(start, gridOffsetFromEdge);
         ctx.lineTo(start, lineLength);
-        ctx.closePath();
         ctx.stroke();
+        ctx.closePath();
     }
 
     ctx.strokeStyle = "#777";
@@ -110,15 +111,15 @@ function drawGrid() {
     ctx.beginPath();
     ctx.moveTo(gridOffsetFromEdge, start);
     ctx.lineTo(lineLength, start);
-    ctx.closePath();
     ctx.stroke();
+    ctx.closePath();
 
     // Vertical center line
     ctx.beginPath();
     ctx.moveTo(start, gridOffsetFromEdge);
     ctx.lineTo(start, lineLength);
-    ctx.closePath();
     ctx.stroke();
+    ctx.closePath();
 }
 
 function drawPoints() {
@@ -127,22 +128,22 @@ function drawPoints() {
     // Draw point 1
     ctx.beginPath();
     ctx.arc(toScreen(x1), toScreen(y1) * -1, pointRadius, 0, 360);
-    ctx.closePath();
     ctx.fill();
+    ctx.closePath();
 
     // Draw point 2
     ctx.beginPath();
     ctx.arc(toScreen(x2), toScreen(y2) * -1, pointRadius, 0, 360);
-    ctx.closePath();
     ctx.fill();
+    ctx.closePath();
 
     // Draw the midpoint
     const [ midPointX, midPointY ] = midPoint(x1, y1, x2, y2);
     ctx.beginPath();
     ctx.arc(toScreen(midPointX), toScreen(midPointY) * -1, pointRadius - 0.5, 0, 360);
-    ctx.closePath();
     ctx.fillStyle = midPointColor;
     ctx.fill();
+    ctx.closePath();
 }
 
 function midPoint(x1, y1, x2, y2) {
@@ -155,8 +156,8 @@ function drawConnectingLine() {
     ctx.beginPath();
     ctx.moveTo(toScreen(x1), toScreen(y1) * -1);
     ctx.lineTo(toScreen(x2), toScreen(y2) * -1);
-    ctx.closePath();
     ctx.stroke();
+    ctx.closePath();
 
     const delta_x = x2 - x1;
     const delta_y = y2 - y1;
@@ -168,17 +169,20 @@ function drawConnectingLine() {
 }
 
 function drawPerpendicularBisector(x, y, sl) {
-    // y = mx + b
-    // b = y - m * x
-    const slope = -1 * (1 / sl);
-    const b = y - slope * x;
+    const slope = -1 * (1 / sl); // Slope opposite reciprocal, because we want perpendicular
+    const y_intercept = y - slope * x; // y = mx + b; b = y - m * x;
 
+    ctx.setLineDash([5, 5]);
     ctx.beginPath();
-    ctx.arc(toScreen(0), toScreen(b) * -1, 8, 0, 360);
-    // ctx.lineTo(toScreen(3), toScreen(0));
+    ctx.moveTo(toScreen(0), toScreen(y_intercept) * -1);
+    ctx.lineTo(toScreen(x), toScreen(y * -1));
+    ctx.stroke();
     ctx.closePath();
-    ctx.fillStyle = "pink";
+    ctx.fillStyle = yInterceptColor;
+    ctx.beginPath();
+    ctx.arc(toScreen(0), toScreen(y_intercept * -1), pointRadius - 0.5, 0, 360);
     ctx.fill();
+    ctx.closePath();
 }
 
 function drawResults(slope, diagonal) {
