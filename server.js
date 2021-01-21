@@ -11,9 +11,24 @@ const contentTypes = {
   '.png': 'image/png'
 };
 
+const knownRoutes = [
+  '/index.html',
+  '/styles.css',
+  '/favicon.png',
+  '/drawing/bind-events.js',
+  '/drawing/board-service.js',
+  '/drawing/draw.js',
+  '/drawing/utils.js'
+];
+
 const serverFunction = function (request, response) {
-  const url = request.url === "/" ? '/index.html' : request.url ;
-  const ext = path.extname(url);
+  let url = request.url === "/" ? '/index.html' : request.url ;
+  let ext = path.extname(url);
+
+  if (knownRoutes.indexOf(url) === -1) {
+    url = '/index.html';
+    ext = '.html';
+  }
   
   fs.readFile('public' + url, function (err, data) {
     if (err) console.log(err);
