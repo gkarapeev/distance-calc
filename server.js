@@ -1,35 +1,27 @@
 const http = require('http');
 const fs = require('fs');
+const path = require('path');
 const port = process.env.PORT || 8080;
 
+const contentTypes = {
+  '.js': 'text/javascript',
+  '.css': 'text/css',
+  '.html': 'text/html',
+  '.ico': 'image/xicon',
+  '.png': 'image/png'
+};
+
 const serverFunction = function (request, response) {
-  if (request.url === '/styles.css') {
-    fs.readFile('styles.css', function (err, data) {
-      if (err) console.log(err);
+  const url = request.url === "/" ? '/index.html' : request.url ;
+  const ext = path.extname(url);
+  
+  fs.readFile('public' + url, function (err, data) {
+    if (err) console.log(err);
 
-      response.writeHead(200, { 'Content-Type': 'text/css' });
-      response.write(data);
-      response.end();
-    });
-  } else if (request.url === '/script.js') {
-    fs.readFile('script.js', function (err, data) {
-      if (err) console.log(err);
-      response.writeHead(200, { 'Content-Type': 'text/javascript' });
-      response.write(data);
-      response.end();
-    });
-  } else {
-    fs.readFile('index.html', (error, data) => {
-      if (error) {
-        response.writeHead(404);
-        response.write('Error: File not found.');
-      }
-
-      response.writeHead(200, { 'Content-type': 'text/html' });
-      response.write(data);
-      response.end();
-    });
-  }
+    response.writeHead(200, { 'Content-Type': contentTypes[ext] });
+    response.write(data);
+    response.end();
+  });
 };
 
 const server = http.createServer(serverFunction);
