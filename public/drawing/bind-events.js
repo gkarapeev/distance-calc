@@ -6,8 +6,6 @@ export function bindEvents(drawFn, s) {
     const x2_input = document.getElementById("x2");
     const y2_input = document.getElementById("y2");
 
-    const inputs = [ x1_input, y1_input, x2_input, y2_input ];
-
     // Canvas
     const canvas = document.getElementById("canvas");
     const ctx = canvas.getContext("2d");
