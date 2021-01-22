@@ -1,7 +1,7 @@
 # Perpendicular Bisector
 
 ## What is This
-- This is a mini-project in which I learned how to programmatically draw the perpendicular bisector of a line in a coordinate system.
+- This is a mini-project in which I learned how to programmatically draw the [perpendicular bisector](https://mathworld.wolfram.com/PerpendicularBisector.html) of a line in a coordinate system.
 
 ## Why I did this
 - Because drawing a perpendicular bisector is a key step in [one algorithm](https://www.youtube.com/watch?v=j2c3kumwoAk&list=PL6FZxwkXzEZEwtjkj9MNWYiZxhP7qcTRg&index=4&t=162s) for generating [Voronoi diagrams](https://en.wikipedia.org/wiki/Voronoi_diagram).
